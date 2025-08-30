@@ -48,7 +48,13 @@ class CandleViewModel : ViewModel() {
             }
 
             CandleAction.OnLightAllCandles -> {
+                _candleState.update { candleList ->
+                    val newList = candleList.map { candle ->
+                        candle.copy(isLit = true)
+                    }
 
+                    newList
+                }
             }
         }
     }

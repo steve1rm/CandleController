@@ -57,7 +57,7 @@ fun CandleScreen(
                     .wrapContentSize(align = Alignment.BottomCenter)
                     .clickable(
                         onClick = {
-                            onAction(CandleAction.OnClicked(CandleState()))
+                            onAction(CandleAction.OnLightAllCandles)
                         }
                     ),
                 color = Color(0xff95D3ED),
