@@ -46,6 +46,10 @@ class CandleViewModel : ViewModel() {
                     newList
                 }
             }
+
+            CandleAction.OnLightAllCandles -> {
+
+            }
         }
     }
 
