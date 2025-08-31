@@ -47,17 +47,14 @@ class CandleViewModel : ViewModel() {
 
                 if(candle?.isLit == true) {
                     // We want to turn it off then pause for 6 seconds and turn it on again
-                    relightCandle()
-                        .onEach { relight ->
-                            if(relight) {
-                                _candleState.update { candleList ->
-                                    updateCandleState(true, candleList, action.candleState.id)
-                                }
-                            }
-                            else {
-                                _candleState.update { candleList ->
-                                    updateCandleState(shouldLightCandle = false, candleList = candleList, candleId = action.candleState.id)
-                                }
+                    runCandleTimer()
+                        .onEach { shouldRelight ->
+                            _candleState.update { candleList ->
+                                updateCandleState(
+                                    shouldLightCandle = shouldRelight,
+                                    candleList = candleList,
+                                    candleId = action.candleState.id
+                                )
                             }
                         }.launchIn(viewModelScope)
                 }
@@ -99,7 +96,7 @@ class CandleViewModel : ViewModel() {
             .toList()
     }
 
-    private fun relightCandle(): Flow<Boolean> {
+    private fun runCandleTimer(): Flow<Boolean> {
         return flow<Boolean> {
             emit(false)
             println("CandleViewModel relight false")
