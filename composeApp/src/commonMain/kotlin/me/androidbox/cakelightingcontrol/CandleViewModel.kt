@@ -41,54 +41,38 @@ class CandleViewModel : ViewModel() {
             is CandleAction.OnClicked -> {
                 println("ViewModel: onAction - Clicked candle ID: ${action.candleState.id}")
 
-                candleState.value.map { candle ->
-                    if(candle.id == action.candleState.id) {
-                        if(candle.isLit) {
-                            // We want to turn it off then pause for 6 seconds and turn it on again
-                            relightCandle()
-                                .onEach { relight ->
-                                    if(relight) {
-                                        _candleState.update { candleList ->
-                                            val newList = candleList.map { candle ->
-                                                if(candle.id == action.candleState.id) {
-                                                    candle.copy(isLit = true)
-                                                }
-                                                else {
-                                                    candle
-                                                }
-                                            }
-                                            newList
-                                        }
-                                    }
-                                    else {
-                                        _candleState.update { candleList ->
-                                            val newList = candleList.map { candle ->
-                                                if(candle.id == action.candleState.id) {
-                                                    candle.copy(isLit = false)
-                                                }
-                                                else {
-                                                    candle
-                                                }
-                                            }
-                                            newList
-                                        }
-                                    }
-                                }.launchIn(viewModelScope)
-                        }
-                        else {
-                            // Its currently off and we want to turn it on
-                            _candleState.update { candleList ->
-                                val newList = candleList.map { candle ->
-                                    if(candle.id == action.candleState.id) {
-                                        candle.copy(isLit = true)
-                                    }
-                                    else {
-                                        candle
-                                    }
+                val candle = candleState.value.firstOrNull { candleState ->
+                    candleState.id == action.candleState.id
+                }
+
+                if(candle?.isLit == true) {
+                    // We want to turn it off then pause for 6 seconds and turn it on again
+                    relightCandle()
+                        .onEach { relight ->
+                            if(relight) {
+                                _candleState.update { candleList ->
+                                    updateCandleState(true, candleList, action.candleState.id)
                                 }
-                                newList
+                            }
+                            else {
+                                _candleState.update { candleList ->
+                                    updateCandleState(shouldLightCandle = false, candleList = candleList, candleId = action.candleState.id)
+                                }
+                            }
+                        }.launchIn(viewModelScope)
+                }
+                else {
+                    // Its currently off and we want to turn it on
+                    _candleState.update { candleList ->
+                        val newList = candleList.map { candle ->
+                            if(candle.id == action.candleState.id) {
+                                candle.copy(isLit = true)
+                            }
+                            else {
+                                candle
                             }
                         }
+                        newList
                     }
                 }
             }
@@ -127,5 +111,20 @@ class CandleViewModel : ViewModel() {
 
     private suspend fun timer(duration: Duration = 6.seconds) {
         delay(duration.inWholeMilliseconds)
+    }
+
+    private fun updateCandleState(
+        shouldLightCandle: Boolean,
+        candleList: List<CandleState>,
+        candleId: Int
+    ): List<CandleState> {
+        val newList = candleList.map { candle ->
+            if (candle.id == candleId) {
+                candle.copy(isLit = shouldLightCandle)
+            } else {
+                candle
+            }
+        }
+        return newList
     }
 }
