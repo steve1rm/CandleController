@@ -61,15 +61,11 @@ class CandleViewModel : ViewModel() {
                 else {
                     // Its currently off and we want to turn it on
                     _candleState.update { candleList ->
-                        val newList = candleList.map { candle ->
-                            if(candle.id == action.candleState.id) {
-                                candle.copy(isLit = true)
-                            }
-                            else {
-                                candle
-                            }
-                        }
-                        newList
+                        updateCandleState(
+                            shouldLightCandle = true,
+                            candleList = candleList,
+                            candleId = action.candleState.id
+                        )
                     }
                 }
             }
